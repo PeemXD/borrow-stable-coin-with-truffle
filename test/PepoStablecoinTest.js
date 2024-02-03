@@ -11,57 +11,58 @@ contract("PepoStablecoin", (accounts) => {
     // Deploy PepoStablecoin contract with MockAggregatorV3 address
     pepoStablecoin = await PepoStablecoin.new(mockAggregator.address);
   });
+  describe("borrow function", function () {
+    it("should get debt is 1000 when borrow with 50% ratio and collateral 1 eth at 2000 usd/eth.", async () => {
+      const ratio = 50;
+      const collateralAmount = web3.utils.toWei("1", "ether");
+      const ethPrice = 2000;
+      await mockAggregator.setEthPrice(ethPrice);
 
-  it("should get debt is 1000 when borrow with 50% ratio and collateral 1 eth at 2000 usd/eth.", async () => {
-    const ratio = 50;
-    const collateralAmount = web3.utils.toWei("1", "ether");
-    const ethPrice = 2000;
-    await mockAggregator.setEthPrice(ethPrice);
+      await pepoStablecoin.borrow(ratio, {
+        value: collateralAmount,
+        from: accounts[1],
+      });
 
-    await pepoStablecoin.borrow(ratio, {
-      value: collateralAmount,
-      from: accounts[1],
+      const expectedDebt = 1000;
+      const actualDebt = await pepoStablecoin.getDebt(accounts[1]);
+      assert.equal(
+        expectedDebt,
+        actualDebt,
+        `expected ${expectedDebt} but got ${actualDebt}`
+      );
     });
 
-    const expectedDebt = 1000;
-    const actualDebt = await pepoStablecoin.getDebt(accounts[1]);
-    assert.equal(
-      expectedDebt,
-      actualDebt,
-      `expected ${expectedDebt} but got ${actualDebt}`
-    );
-  });
+    it("should get debt is 1675 when borrow with 75% ratio and collateral 1 eth at 2234 usd/eth.", async () => {
+      const ratio = 75;
+      const collateralAmount = web3.utils.toWei("1", "ether");
+      const ethPrice = 2234;
+      await mockAggregator.setEthPrice(ethPrice);
 
-  it("should get debt is 1675 when borrow with 75% ratio and collateral 1 eth at 2234 usd/eth.", async () => {
-    const ratio = 75;
-    const collateralAmount = web3.utils.toWei("1", "ether");
-    const ethPrice = 2234;
-    await mockAggregator.setEthPrice(ethPrice);
+      await pepoStablecoin.borrow(ratio, {
+        value: collateralAmount,
+        from: accounts[1],
+      });
 
-    await pepoStablecoin.borrow(ratio, {
-      value: collateralAmount,
-      from: accounts[1],
+      const expectedDebt = 1675;
+      const actualDebt = await pepoStablecoin.getDebt(accounts[1]);
+      assert.equal(
+        expectedDebt,
+        actualDebt,
+        `expected ${expectedDebt} but got ${actualDebt}`
+      );
     });
 
-    const expectedDebt = 1675;
-    const actualDebt = await pepoStablecoin.getDebt(accounts[1]);
-    assert.equal(
-      expectedDebt,
-      actualDebt,
-      `expected ${expectedDebt} but got ${actualDebt}`
-    );
-  });
+    it("should revert when borrowing with invalid ratio", async () => {
+      const invalidRatio = 76; // Set an invalid collateral ratio (greater than 75)
 
-  it("should revert when borrowing with invalid ratio", async () => {
-    const invalidRatio = 76; // Set an invalid collateral ratio (greater than 75)
-
-    await expectRevert(
-      pepoStablecoin.borrow(invalidRatio, {
-        value: web3.utils.toWei("1", "ether"),
-        from: accounts[0],
-      }),
-      "ratio must less than equal 75%"
-    );
+      await expectRevert(
+        pepoStablecoin.borrow(invalidRatio, {
+          value: web3.utils.toWei("1", "ether"),
+          from: accounts[0],
+        }),
+        "ratio must less than equal 75%"
+      );
+    });
   });
 });
 
