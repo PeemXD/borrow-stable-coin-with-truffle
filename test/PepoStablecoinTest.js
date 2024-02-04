@@ -12,7 +12,7 @@ contract("PepoStablecoin", (accounts) => {
     pepoStablecoin = await PepoStablecoin.new(mockAggregator.address);
   });
   describe("borrow function", function () {
-    it("should get debt is 1000 when borrow with 50% ratio and collateral 1 eth at 2000 usd/eth.", async () => {
+    it("should have debt 1000 when borrow with 50% ratio and collateral 1 eth at 2000 usd/eth.", async () => {
       const ratio = 50;
       const collateralAmount = web3.utils.toWei("1", "ether");
       const ethPrice = 2000;
@@ -32,7 +32,7 @@ contract("PepoStablecoin", (accounts) => {
       );
     });
 
-    it("should get debt is 1675 when borrow with 75% ratio and collateral 1 eth at 2234 usd/eth.", async () => {
+    it("should have debt 1675 when borrow with 75% ratio and collateral 1 eth at 2234 usd/eth.", async () => {
       const ratio = 75;
       const collateralAmount = web3.utils.toWei("1", "ether");
       const ethPrice = 2234;
